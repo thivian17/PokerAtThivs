@@ -17,15 +17,18 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 html, body { margin: 0; background: var(--felt-dark); color: var(--cream); }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  background: radial-gradient(ellipse at top, var(--felt-light) 0%, var(--felt) 45%, var(--felt-dark) 100%) fixed;
-  min-height: 100vh;
+  /* no background-attachment: fixed (janky on iOS Safari) */
+  background: radial-gradient(ellipse 120% 60% at top, var(--felt-light) 0%, var(--felt) 45%, var(--felt-dark) 100%) no-repeat, var(--felt-dark);
+  min-height: 100vh; min-height: 100dvh;
 }
-#root { max-width: 480px; margin: 0 auto; padding: env(safe-area-inset-top) 8px calc(16px + env(safe-area-inset-bottom)); }
+#root { max-width: 480px; margin: 0 auto; padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)); }
+button, input, a.btn { -webkit-appearance: none; appearance: none; touch-action: manipulation; }
 button { font: inherit; color: inherit; cursor: pointer; }
-button:disabled { cursor: default; }
+button:disabled { cursor: default; color: inherit; -webkit-text-fill-color: currentColor; }
 input {
   font: inherit; width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--line);
   background: var(--felt-dark); color: var(--cream); font-size: 17px; outline: none;
@@ -80,7 +83,7 @@ input:focus { border-color: var(--gold); }
 .stepper { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,.2); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
 .stepper button { width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--felt-light); font-size: 20px; line-height: 1; }
 .stepper button:disabled { opacity: .35; }
-.stepper span { font-size: 14px; min-width: 112px; text-align: center; }
+.stepper span { font-size: 14px; min-width: 104px; text-align: center; white-space: nowrap; }
 .stepper b { color: var(--gold); font-size: 16px; }
 
 .slots { display: flex; gap: 8px; align-items: flex-end; }
@@ -98,20 +101,20 @@ input:focus { border-color: var(--gold); }
 .slot.filled.active { border-color: var(--gold); }
 .slot .r { font-size: clamp(17px, 5.4vw, 22px); font-weight: 800; line-height: 1; }
 .slot .s { font-size: 20px; line-height: 1.1; }
-.slot-hint { font-size: 10px; color: var(--muted); }
+.slot-hint { font-size: 11px; color: var(--muted); }
 .s0 { color: var(--spade); } .s1 { color: var(--heart); } .s2 { color: var(--diamond); } .s3 { color: var(--club); }
 
 .picker { margin-top: 12px; display: flex; flex-direction: column; gap: 3px; }
-.picker-row { display: grid; grid-template-columns: repeat(13, 1fr); gap: 3px; }
+.picker-row { display: grid; grid-template-columns: repeat(13, 1fr); gap: 2.5px; }
 .pcard {
   position: relative; aspect-ratio: 0.72; min-width: 0; border-radius: 5px; border: none; background: #fbf8f0; padding: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1;
   box-shadow: 0 1px 2px rgba(0,0,0,.35); transition: transform .06s, background .25s;
 }
 .pcard:active:not(:disabled) { transform: scale(.92); }
-.pcard .r { font-weight: 800; font-size: clamp(12px, 3.6vw, 16px); }
-.pcard .s { font-size: clamp(10px, 3vw, 14px); }
-.pcard.used { opacity: .15; }
+.pcard .r { font-weight: 800; font-size: clamp(13px, 3.8vw, 17px); letter-spacing: -0.5px; }
+.pcard .s { font-size: clamp(11px, 3.3vw, 15px); }
+.pcard.used { opacity: .28; background: #6f8a7f; }
 .pcard.previewing { outline: 2px solid var(--gold); outline-offset: 1px; }
 .out-dot { position: absolute; top: 2px; right: 2px; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 1px rgba(0,0,0,.4); }
 .picker.whatif-on .pcard:not(.used) { box-shadow: 0 0 0 1px var(--gold); }
@@ -133,7 +136,7 @@ input:focus { border-color: var(--gold); }
 .hint { text-align: center; color: var(--muted); padding: 28px 0; }
 .results { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
 .equity-head { display: flex; align-items: center; gap: 14px; }
-.equity-num { font-size: 52px; font-weight: 800; color: var(--gold); letter-spacing: -1px; font-variant-numeric: tabular-nums; position: relative; min-width: 170px; }
+.equity-num { font-size: clamp(42px, 13vw, 52px); font-weight: 800; color: var(--gold); letter-spacing: -1px; font-variant-numeric: tabular-nums; position: relative; min-width: 0; flex-shrink: 0; }
 .pulse-dot { position: absolute; top: 12px; right: -4px; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; animation: pulse .8s infinite; }
 .equity-sub { font-size: 15px; }
 .caption { font-size: 12px; color: var(--muted); margin-top: 2px; }
@@ -154,13 +157,13 @@ table.outs tr.total td { color: var(--gold); font-weight: 700; }
 .db { height: 8px; background: rgba(0,0,0,.3); border-radius: 4px; overflow: hidden; }
 .db span { display: block; height: 100%; background: var(--gold); border-radius: 4px; }
 .dp { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
-.footnote { font-size: 11px; color: var(--muted); line-height: 1.4; margin: 4px 2px 0; }
+.footnote { font-size: 12px; color: var(--muted); line-height: 1.4; margin: 4px 2px 0; }
 .ms { opacity: .7; }
 
 .install-hint {
-  position: fixed; left: 8px; right: 8px; bottom: calc(10px + env(safe-area-inset-bottom)); max-width: 464px; margin: 0 auto;
+  margin: 2px 0 8px;
   background: var(--felt-dark); border: 1px solid var(--gold); border-radius: 12px; padding: 10px 12px;
-  font-size: 13px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  font-size: 13px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
 }
 
 /* ---------- Admin ---------- */
@@ -171,7 +174,7 @@ table.outs tr.total td { color: var(--gold); font-weight: 700; }
 .stats span { font-size: 11px; color: var(--muted); }
 .note { background: var(--gold-soft); border: 1px solid var(--gold); border-radius: 10px; padding: 10px; font-size: 14px; }
 .row-form { display: flex; gap: 6px; flex-wrap: wrap; }
-.row-form input { flex: 1 1 140px; padding: 10px; font-size: 15px; }
+.row-form input { flex: 1 1 140px; padding: 10px; font-size: 16px; }
 .small-btn { padding: 10px 14px; min-height: 0; font-size: 14px; }
 .table-wrap { overflow-x: auto; }
 table.allow { width: 100%; border-collapse: collapse; font-size: 13px; }

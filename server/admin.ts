@@ -4,7 +4,6 @@ import { parse } from "csv-parse/sync";
 import { q } from "./db";
 import { normalizeEmail, isValidEmail, safeEqual, asyncH } from "./util";
 import { requireAdmin } from "./auth";
-import { codeEmailHtml, sendCodeEmail } from "./email";
 
 // ---------- Power Automate webhook ----------
 export const hookRouter = Router();
@@ -117,11 +116,3 @@ adminRouter.post("/allowlist/csv", asyncH(async (req, res) => {
   res.json({ dryRun: false, imported: summary.new, ...summary });
 }));
 
-adminRouter.get("/email-preview", (req, res) => {
-  res.type("html").send(codeEmailHtml("482913", process.env.APP_URL || `${req.protocol}://${req.get("host")}`));
-});
-
-adminRouter.post("/test-email", asyncH(async (req, res) => {
-  await sendCodeEmail(req.user!.email, "123456", process.env.APP_URL || `${req.protocol}://${req.get("host")}`);
-  res.json({ ok: true, to: req.user!.email });
-}));

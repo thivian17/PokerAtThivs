@@ -21,11 +21,8 @@ export default function App() {
 
   if (me === undefined) return <div className="splash"><div className="suits pulse">♠ ♥ ♦ ♣</div></div>;
   if (!me) return <SignIn onSignedIn={setMe} />;
-  if (path.startsWith("/admin") && me.isAdmin) return <Admin me={me} onBack={() => go("/")} />;
+  if (path.startsWith("/admin") && me.isAdmin) return <Admin me={me} onUnlocked={() => setMe({ ...me, adminUnlocked: true })} onBack={() => go("/")} />;
   return (
-    <>
-      <Calculator me={me} onAdmin={me.isAdmin ? () => go("/admin") : undefined} onLogout={logout} />
-      <InstallHint />
-    </>
+    <Calculator me={me} onAdmin={me.isAdmin ? () => go("/admin") : undefined} onLogout={logout} banner={<InstallHint />} />
   );
 }

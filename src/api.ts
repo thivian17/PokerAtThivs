@@ -1,5 +1,5 @@
 export interface User { id: number; email: string; display_name: string | null }
-export interface Me { user: User; isAdmin: boolean }
+export interface Me { user: User; isAdmin: boolean; adminUnlocked: boolean }
 
 export async function api<T = any>(path: string, opts: { method?: string; body?: unknown } = {}): Promise<{ status: number; data: T }> {
   const res = await fetch(`/api${path}`, {

@@ -39,7 +39,7 @@ function heatColor(delta: number, exact: boolean) {
   return `rgb(${mix.join(",")})`;
 }
 
-export default function Calculator({ me, onAdmin, onLogout }: { me: Me; onAdmin?: () => void; onLogout: () => void }) {
+export default function Calculator({ me, onAdmin, onLogout, banner }: { me: Me; onAdmin?: () => void; onLogout: () => void; banner?: React.ReactNode }) {
   const [slots, setSlots] = useState<(number | null)[]>(Array(7).fill(null));
   const [active, setActive] = useState(0);
   const [opponents, setOpponents] = useState(() => {
@@ -107,6 +107,7 @@ export default function Calculator({ me, onAdmin, onLogout }: { me: Me; onAdmin?
           <button className="chip" onClick={onLogout} title={me.user.email}>Sign out</button>
         </div>
       </header>
+      {banner}
 
       <div className="controls">
         <div className="stepper" aria-label="Number of opponents">

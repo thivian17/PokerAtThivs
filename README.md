@@ -4,16 +4,17 @@ Companion app for the Optimus Day poker night (Fri Nov 27 · No-Limit Hold'em ·
 
 **Phase 1:** an odds calculator, gated so only people who filled out the RSVP form can sign in.
 
-- **Email gate:** an allowlist synced from the Microsoft Form via Power Automate, plus a 6-digit email code and a 30-day session.
+- **Email gate:** an allowlist synced from the Microsoft Form via Power Automate. Players type the email they used on the form and they're in, with a 30-day session. Anyone else sees *"You're not on the list… yet"* with a link to the form. Removing someone from the list revokes their access immediately.
 - **Odds engine:** runs on the phone in a Web Worker.
   - Win/tie/lose: exact for heads-up after the flop, otherwise simulated, with results refining on screen.
   - Your current hand, your outs grouped by the hand they make (next-card % and by-river %), and the chance of finishing with each hand type.
   - **What-if heatmap:** every possible next card is shaded by how it changes your equity.
-- **Admin page** (`/admin`): view the allowlist, add people by hand, import the Forms CSV, preview and test the login email.
+- **Admin page** (`/admin`): admin emails plus `ADMIN_PASSWORD`. View the allowlist, add or remove people, import the Forms CSV.
 - **PWA:** installs to the home screen, and the app shell is cached for flaky Wi-Fi.
+- **iPhone-tested layouts:** SE (375pt) to Pro Max (430pt). No sideways scrolling, inputs at 16px+ so Safari doesn't zoom, double-tap zoom disabled on the card grid, safe-area insets respected.
 
 ## Stack
-React + Vite + TypeScript · Express 5 · PostgreSQL (`pg`) · nodemailer (Gmail SMTP) · Vitest.
+React + Vite + TypeScript · Express 5 · PostgreSQL (`pg`) · Vitest.
 The schema is created automatically when the server starts (`server/db.ts`), so there's no migration step.
 
 ## Deploy on Replit (≈15 min)
@@ -23,16 +24,13 @@ The schema is created automatically when the server starts (`server/db.ts`), so 
 
    | Secret | Value |
    |---|---|
-   | `SMTP_USER` | your Gmail address |
-   | `SMTP_PASS` | Gmail **app password** (Google Account → Security → 2-Step Verification on → myaccount.google.com/apppasswords) |
-   | `SMTP_FROM_NAME` | `Thiv's Table` |
    | `ADMIN_EMAILS` | `you@optimussbr.com,nas@optimussbr.com` |
+   | `ADMIN_PASSWORD` | password you and Nas use to open `/admin` |
    | `FORM_WEBHOOK_SECRET` | long random string (also goes into Power Automate) |
    | `FORM_URL` | Microsoft Form share link |
    | `SESSION_PEPPER` | another long random string |
-   | `APP_URL` | your deployed URL, e.g. `https://pokeratthivs.replit.app` (used in the email button) |
 
-4. **Run:** press *Run*. It installs, builds and serves on port 3000. Sign in with your admin email, then go to `/admin` → *Send test to me*.
+4. **Run:** press *Run*. It installs, builds and serves on port 3000. Sign in with your admin email, tap *Admin*, and enter `ADMIN_PASSWORD`.
 5. **Deploy:** *Deploy* → *Autoscale*. Build and run commands are already set in `.replit` (`npm install && npm run build` / `npm start`). Make sure the Secrets and the database are attached to the deployment.
 
 ## Power Automate (form → instant access)
@@ -54,7 +52,7 @@ If your company's settings block the HTTP action from reaching an outside URL, u
 ## Local development
 ```bash
 npm install
-cp .env.example .env   # fill in DATABASE_URL at minimum; without SMTP, codes print to the console
+cp .env.example .env   # fill in DATABASE_URL at minimum
 npm run dev            # API on :3000, Vite on :5173 (proxied)
 npm test               # engine tests (exhaustive 5-card counts, AA vs KK, outs, etc.)
 npm run bench          # evaluator speed (~8M 7-card hands/sec in Node)
@@ -63,12 +61,11 @@ npm run bench          # evaluator speed (~8M 7-card hands/sec in Node)
 ## API
 | Route | Notes |
 |---|---|
-| `POST /api/auth/request-code` `{email}` | `sent` / `not_registered` (+formUrl) / `rate_limited` (1 per 60s, 5 per hour per email; 20 per 10 min per IP) |
-| `POST /api/auth/verify` `{email, code}` | `ok` (sets `sid` cookie) / `wrong_code` / `locked` (after 5 tries) / `expired` |
+| `POST /api/auth/login` `{email}` | `ok` (sets `sid` cookie) / `not_registered` (+formUrl) / `rate_limited` (30 per 10 min per IP) |
+| `POST /api/auth/admin-unlock` `{password}` | admin emails only; unlocks `/api/admin/*` for that session |
 | `GET /api/auth/me`, `POST /api/auth/logout` | |
 | `POST /api/hooks/form-response` | Power Automate webhook, `X-Webhook-Secret` header |
 | `GET/POST/DELETE /api/admin/allowlist…`, `POST /api/admin/allowlist/csv` | admins only |
-| `GET /api/admin/email-preview`, `POST /api/admin/test-email` | admins only |
 
 ## Phase 2 ideas (already prepared for)
-`users` table exists for the leaderboard; the engine (`src/engine`) is pure TS and can drive a rule-based coach (preflop charts + pot odds vs equity) and a practice mode.
+`users` table exists for the leaderboard. Sign-in is email-only, so record leaderboard results host-side (you or Nas enter chip counts) rather than letting players self-report; the engine (`src/engine`) is pure TS and can drive a rule-based coach (preflop charts + pot odds vs equity) and a practice mode.
