@@ -39,7 +39,7 @@ function heatColor(delta: number, exact: boolean) {
   return `rgb(${mix.join(",")})`;
 }
 
-export default function Calculator({ me, onAdmin, onLogout, banner }: { me: Me; onAdmin?: () => void; onLogout: () => void; banner?: React.ReactNode }) {
+export default function Calculator({ me, onAdmin, onLogout, onComingSoon, banner }: { me: Me; onAdmin?: () => void; onLogout: () => void; onComingSoon: () => void; banner?: React.ReactNode }) {
   const [slots, setSlots] = useState<(number | null)[]>(Array(7).fill(null));
   const [active, setActive] = useState(0);
   const [opponents, setOpponents] = useState(() => {
@@ -181,7 +181,14 @@ export default function Calculator({ me, onAdmin, onLogout, banner }: { me: Me; 
       )}
 
       {hole.length < 2 ? (
-        <div className="hint">Tap your two hole cards to start.</div>
+        <div className="hint">
+          Tap your two hole cards to start.
+          <button className="coming-card" onClick={onComingSoon}>
+            <span className="cs-suits"><span>♠</span><span className="h">♥</span><span className="d">♦</span></span>
+            <span><b>Coming soon:</b> Leaderboard, Coach &amp; Practice Table</span>
+            <span className="cs-arrow">→</span>
+          </button>
+        </div>
       ) : (
         <section className="results">
           <div className="equity-head">
@@ -267,6 +274,11 @@ export default function Calculator({ me, onAdmin, onLogout, banner }: { me: Me; 
             Odds assume opponents hold random cards. After big bets, real odds are usually worse.
             {a.firstResultMs !== null && <span className="ms"> · first result in {a.firstResultMs} ms</span>}
           </p>
+          <button className="coming-card" onClick={onComingSoon}>
+            <span className="cs-suits"><span>♠</span><span className="h">♥</span><span className="d">♦</span></span>
+            <span><b>Coming soon:</b> Leaderboard, Coach &amp; Practice Table</span>
+            <span className="cs-arrow">→</span>
+          </button>
         </section>
       )}
     </div>

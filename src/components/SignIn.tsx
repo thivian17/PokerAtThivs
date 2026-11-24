@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api, storage, type Me } from "../api";
+import ProductShowcase from "./ProductShowcase";
 
 export default function SignIn({ onSignedIn }: { onSignedIn: (me: Me) => void }) {
   const [step, setStep] = useState<"email" | "not_registered">("email");
@@ -61,12 +62,13 @@ export default function SignIn({ onSignedIn }: { onSignedIn: (me: Me) => void })
         </div>
       )}
 
-      <footer className="teaser">
-        <div className="eyebrow">COMING FRIDAY</div>
-        <div className="teaser-row"><span>♠</span> Live Leaderboard <i>LOCKED</i></div>
-        <div className="teaser-row"><span className="h">♥</span> The Coach <i>LOCKED</i></div>
-        <div className="teaser-row"><span className="d">♦</span> Practice Table <i>LOCKED</i></div>
-      </footer>
+      <ProductShowcase
+        cta={
+          <button className="btn gold" onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setStep("email"); }}>
+            Get in: enter your email
+          </button>
+        }
+      />
     </div>
   );
 }
