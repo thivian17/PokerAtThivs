@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { ZodError } from "zod";
 import { migrate } from "./db";
 import { authRouter, loadUser } from "./auth";
-import { adminRouter, hookRouter } from "./admin";
+import { adminRouter } from "./admin";
 import { sameOrigin } from "./util";
 
 const app = express();
@@ -30,7 +30,6 @@ app.use(express.json({ limit: "3mb" }));
 app.use(cookieParser());
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
-app.use("/api/hooks", hookRouter); // secret-authenticated, no cookies
 app.use("/api", sameOrigin, loadUser);
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);

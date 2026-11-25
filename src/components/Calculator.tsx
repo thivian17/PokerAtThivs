@@ -26,6 +26,29 @@ function nextEmpty(slots: (number | null)[], from: number) {
   }
   return -1;
 }
+function stepPrompt(slots: (number | null)[], active: number) {
+  const filled = (i: number) => slots[i] !== null;
+  if (active >= 0 && filled(active)) return "Tap a card to replace it, or tap the slot again to clear it";
+  if (!filled(0) || !filled(1)) return `Pick your ${filled(0) || filled(1) ? "second" : "first"} hole card`;
+  const flopLeft = [2, 3, 4].filter((i) => !filled(i)).length;
+  if (flopLeft) return flopLeft === 3 ? "Add the flop when it comes (3 cards)" : `Flop: ${flopLeft} more card${flopLeft === 1 ? "" : "s"}`;
+  if (!filled(5)) return "Add the turn when it comes";
+  if (!filled(6)) return "Add the river when it comes";
+  return "All cards are out. Tap New hand for the next one";
+}
+
+function Verdict({ equity, players }: { equity: number; players: number }) {
+  const fair = 1 / players;
+  const ratio = Math.round((equity / fair) * 10) / 10; // same rounded value drives the tag and the text
+  const [label, cls] = ratio >= 2 || equity >= 0.65 ? ["Strong", "v-strong"] : ratio >= 1.2 ? ["Above average", "v-good"] : ratio >= 0.8 ? ["About average", "v-mid"] : ["Below average", "v-weak"];
+  return (
+    <div className="verdict">
+      <span className={`v-tag ${cls}`}>{label}</span>
+      <span className="muted">An average hand wins {pct(fair, 0)} with {players} players. You're at {ratio.toFixed(1)}×.</span>
+    </div>
+  );
+}
+
 const vibrate = () => { try { navigator.vibrate?.(8); } catch { /* ignore */ } };
 
 // Pastel tint mixed from the cream card face so rank/suit stay readable.
@@ -77,20 +100,22 @@ export default function Calculator({ me, onAdmin, onLogout, onComingSoon, banner
     next[active] = c;
     setSlots(next);
     setActive(nextEmpty(next, active + 1));
+    if (whatIfMode) setWhatIfMode(false);
     setPreview(null);
     vibrate();
   }
 
   function tapSlot(i: number) {
     if (!slotEnabled(slots, i)) return;
-    if (slots[i] !== null) {
+    setPreview(null);
+    if (slots[i] !== null && active === i) {
+      // Second tap on a selected card clears it
       const next = [...slots];
       next[i] = null;
-      // Removing a hole/flop card invalidates later streets' order only visually; keep cards but they won't count until contiguous
       setSlots(next);
+      return;
     }
-    setActive(i);
-    setPreview(null);
+    setActive(i); // a filled slot is now selected: the next card you tap replaces it
   }
 
   function reset() { setSlots(Array(7).fill(null)); setActive(0); setPreview(null); setWhatIfMode(false); }
@@ -128,6 +153,8 @@ export default function Calculator({ me, onAdmin, onLogout, onComingSoon, banner
           <div className="slot-row">{[2, 3, 4, 5, 6].map(renderSlot)}</div>
         </div>
       </div>
+
+      {!(whatIfMode && canWhatIf) && <div className="step-prompt">{stepPrompt(slots, active)}</div>}
 
       <div className={`picker ${whatIfMode && canWhatIf ? "whatif-on" : ""}`}>
         {SUIT_ORDER.map((s) => (
@@ -203,6 +230,7 @@ export default function Calculator({ me, onAdmin, onLogout, onComingSoon, banner
               </div>
             </div>
           </div>
+          {eq && <Verdict equity={eq.equity} players={opponents + 1} />}
           {eq && (
             <div className="bar" aria-hidden>
               <div className="w" style={{ width: pct(eq.win) }} />
@@ -292,7 +320,7 @@ export default function Calculator({ me, onAdmin, onLogout, onComingSoon, banner
         key={i}
         className={`slot ${c !== null ? `filled s${suitOf(c)}` : ""} ${active === i ? "active" : ""} ${enabled ? "" : "disabled"} ${i === 5 || i === 6 ? "street-gap" : ""}`}
         onClick={() => tapSlot(i)}
-        aria-label={c !== null ? `Remove ${cardName(c)}` : `Empty ${SLOT_LABELS[i] || (i < 2 ? "hole card" : "flop card")} slot`}
+        aria-label={c !== null ? `${cardName(c)}, tap to change` : `Empty ${SLOT_LABELS[i] || (i < 2 ? "hole card" : "flop card")} slot`}
       >
         {c !== null ? (
           <>

@@ -10,5 +10,5 @@ export default defineConfig({
     port: 5173,
     proxy: { "/api": "http://localhost:3000" },
   },
-  test: { include: ["src/**/*.test.ts"], testTimeout: 60000 },
+  test: { include: ["src/**/*.test.ts", "server/**/*.test.ts"], testTimeout: 60000 },
 } as any);

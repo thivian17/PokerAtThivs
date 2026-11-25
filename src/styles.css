@@ -278,3 +278,22 @@ table.allow td.em { word-break: break-all; }
 .pp-heat { display: grid; grid-template-columns: repeat(13, 1fr); gap: 2px; }
 .pp-heat span { aspect-ratio: .72; border-radius: 2px; background: #f3c4bf; font-size: 6.5px; font-weight: 800; color: #d6342c; display: grid; place-items: center; }
 .pp-heat span.g { background: #7fdc9c; } .pp-heat span.n { background: #fbf8f0; } .pp-heat span.u { background: #3d5a4e; color: transparent; }
+
+/* admin: bulk add + inline edit */
+.stats.stats-3 { grid-template-columns: repeat(3, 1fr); }
+.note.bad { background: rgba(192,57,43,.2); border-color: #e57368; }
+textarea.bulk { font: inherit; width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--felt-dark); color: var(--cream); font-size: 16px; resize: vertical; outline: none; font-family: ui-monospace, Menlo, monospace; }
+textarea.bulk:focus { border-color: var(--gold); }
+.bulk-list { margin: 0; padding-left: 18px; font-size: 14px; display: flex; flex-direction: column; gap: 2px; }
+.name-btn { color: var(--cream); text-decoration: none; padding: 2px 0; text-align: left; border-bottom: 1px dashed var(--line); border-radius: 0; }
+.inline-edit input { padding: 6px 8px; font-size: 16px; }
+
+/* calculator polish */
+.step-prompt { margin-top: 10px; font-size: 13px; color: var(--gold); text-align: center; min-height: 18px; }
+.picker { margin-top: 6px; }
+.verdict { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 1.35; }
+.v-tag { flex-shrink: 0; font-size: 11px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; padding: 3px 7px; border-radius: 5px; }
+.v-strong { background: rgba(46,204,113,.22); color: #6fe39a; }
+.v-good { background: rgba(46,204,113,.12); color: #a6e8bd; }
+.v-mid { background: var(--gold-soft); color: var(--gold); }
+.v-weak { background: rgba(192,57,43,.2); color: #f0a097; }

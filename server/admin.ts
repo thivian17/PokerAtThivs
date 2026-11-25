@@ -2,36 +2,8 @@ import { Router } from "express";
 import { z } from "zod";
 import { parse } from "csv-parse/sync";
 import { q } from "./db";
-import { normalizeEmail, isValidEmail, safeEqual, asyncH } from "./util";
+import { normalizeEmail, isValidEmail, asyncH } from "./util";
 import { requireAdmin } from "./auth";
-
-// ---------- Power Automate webhook ----------
-export const hookRouter = Router();
-
-hookRouter.post("/form-response", asyncH(async (req, res) => {
-  const secret = process.env.FORM_WEBHOOK_SECRET;
-  const given = req.get("x-webhook-secret") ?? "";
-  if (!secret || !safeEqual(given, secret)) return res.status(401).json({ error: "Unauthorized" });
-
-  const b = req.body ?? {};
-  const email = normalizeEmail(b.email ?? b.responder ?? b.Email);
-  if (!isValidEmail(email)) {
-    console.warn("[webhook] rejected invalid email");
-    return res.status(400).json({ error: "Invalid email" });
-  }
-  const name = b.name ? String(b.name).slice(0, 120) : null;
-  const submittedAt = b.submittedAt && !isNaN(Date.parse(b.submittedAt)) ? new Date(b.submittedAt) : new Date();
-  await q(
-    `INSERT INTO allowlist (email, name, source, response_id, submitted_at) VALUES ($1, $2, 'form', $3, $4)
-     ON CONFLICT (email) DO UPDATE SET
-       name = COALESCE(EXCLUDED.name, allowlist.name),
-       response_id = COALESCE(EXCLUDED.response_id, allowlist.response_id),
-       submitted_at = EXCLUDED.submitted_at,
-       source = CASE WHEN allowlist.source = 'admin' THEN 'admin' ELSE 'form' END`,
-    [email, name, b.responseId ? String(b.responseId).slice(0, 100) : null, submittedAt]);
-  console.log(`[webhook] form response accepted (${email.replace(/(.{2}).*@/, "$1***@")})`);
-  res.json({ ok: true });
-}));
 
 // ---------- Admin ----------
 export const adminRouter = Router();
@@ -50,17 +22,80 @@ adminRouter.get("/allowlist", asyncH(async (_req, res) => {
 }));
 
 adminRouter.post("/allowlist", asyncH(async (req, res) => {
-  const body = z.object({ email: z.string(), name: z.string().max(120).optional() }).parse(req.body);
+  const body = z.object({ email: z.string().max(254), name: z.string().max(120).optional() }).parse(req.body);
   const email = normalizeEmail(body.email);
-  if (!isValidEmail(email)) return res.status(400).json({ error: "Invalid email" });
-  await q(`INSERT INTO allowlist (email, name, source) VALUES ($1, $2, 'manual')
-           ON CONFLICT (email) DO UPDATE SET name = COALESCE(EXCLUDED.name, allowlist.name)`, [email, body.name || null]);
+  if (!isValidEmail(email)) return res.status(400).json({ error: `"${body.email}" isn't a valid email` });
+  const r = await q(`INSERT INTO allowlist (email, name, source) VALUES ($1, $2, 'manual') ON CONFLICT (email) DO NOTHING`,
+    [email, body.name?.trim() || null]);
+  if (r.rowCount === 0) return res.status(409).json({ error: `${email} is already on the list` });
+  res.json({ ok: true, email });
+}));
+
+adminRouter.patch("/allowlist/:email", asyncH(async (req, res) => {
+  const { name } = z.object({ name: z.string().max(120) }).parse(req.body);
+  const email = normalizeEmail(req.params.email);
+  const r = await q(`UPDATE allowlist SET name = $2 WHERE email = $1`, [email, name.trim() || null]);
+  if (r.rowCount === 0) return res.status(404).json({ error: "Not on the list" });
+  if (name.trim()) await q(`UPDATE users SET display_name = $2 WHERE email = $1`, [email, name.trim()]);
   res.json({ ok: true });
 }));
 
+// Removing someone also ends every session they have.
 adminRouter.delete("/allowlist/:email", asyncH(async (req, res) => {
-  await q(`DELETE FROM allowlist WHERE email = $1`, [normalizeEmail(req.params.email)]);
+  const email = normalizeEmail(req.params.email);
+  await q(`DELETE FROM allowlist WHERE email = $1`, [email]);
+  await q(`DELETE FROM sessions WHERE user_id IN (SELECT id FROM users WHERE email = $1)`, [email]);
   res.json({ ok: true });
+}));
+
+// ---------- Bulk add: rows pasted from Excel (Form responses) ----------
+// Each line: name and email in either order, tab- or comma-separated. Header rows and blank lines are skipped.
+export function parseBulk(text: string) {
+  const rows: { line: number; email: string; name: string | null }[] = [];
+  const invalid: { line: number; value: string }[] = [];
+  let first = true;
+  text.replace(/^\uFEFF/, "").split(/\r?\n/).forEach((raw, i) => {
+    const line = raw.trim();
+    if (!line) return;
+    const isFirst = first;
+    first = false;
+    const cells = (line.includes("\t") ? line.split("\t") : line.split(/[,;]/)).map((c) => c.trim().replace(/^"|"$/g, "").trim());
+    const at = cells.findIndex((c) => c.includes("@"));
+    if (at < 0) {
+      // The header row ("Name  Email") is skipped silently; any other line without an email is reported
+      if (!(isFirst && /e-?mail|name/i.test(line))) invalid.push({ line: i + 1, value: line.slice(0, 80) });
+      return;
+    }
+    const email = normalizeEmail(cells[at].replace(/^.*<([^>]+)>.*$/, "$1"));
+    if (!isValidEmail(email)) { invalid.push({ line: i + 1, value: cells[at].slice(0, 80) }); return; }
+    const name = cells.filter((c, j) => j !== at && c && !c.includes("@")).join(" ").slice(0, 120) || null;
+    rows.push({ line: i + 1, email, name });
+  });
+  return { rows, invalid };
+}
+
+adminRouter.post("/allowlist/bulk", asyncH(async (req, res) => {
+  const body = z.object({ text: z.string().max(500_000), dryRun: z.boolean().default(true) }).parse(req.body);
+  const { rows, invalid } = parseBulk(body.text);
+  const seen = new Set<string>();
+  const unique = rows.filter((r) => (seen.has(r.email) ? false : (seen.add(r.email), true)));
+  const existing = unique.length
+    ? new Set((await q<{ email: string }>(`SELECT email FROM allowlist WHERE email = ANY($1)`, [unique.map((r) => r.email)])).rows.map((r) => r.email))
+    : new Set<string>();
+  const toAdd = unique.filter((r) => !existing.has(r.email));
+  const summary = {
+    toAdd, invalid,
+    duplicates: rows.length - toAdd.length,
+    alreadyOnList: unique.filter((r) => existing.has(r.email)).map((r) => r.email),
+    repeatedInPaste: rows.length - unique.length,
+  };
+  if (body.dryRun) return res.json({ dryRun: true, ...summary });
+  let added = 0;
+  for (const r of toAdd) {
+    const ins = await q(`INSERT INTO allowlist (email, name, source) VALUES ($1, $2, 'manual') ON CONFLICT (email) DO NOTHING`, [r.email, r.name]);
+    added += ins.rowCount ?? 0;
+  }
+  res.json({ dryRun: false, added, ...summary });
 }));
 
 function findCol(headers: string[], needles: string[], override?: string) {

@@ -1,5 +1,5 @@
 // Poker at Thiv's service worker: app shell + engine cached for flaky party Wi-Fi.
-const CACHE = "pat-v1";
+const CACHE = "pat-v2";
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/", "/manifest.webmanifest", "/icons/icon-192.png"])).then(() => self.skipWaiting()));
 });
