@@ -8,6 +8,7 @@ import { ZodError } from "zod";
 import { migrate } from "./db";
 import { authRouter, loadUser } from "./auth";
 import { adminRouter } from "./admin";
+import { practiceRouter } from "./practice";
 import { sameOrigin } from "./util";
 
 const app = express();
@@ -33,6 +34,7 @@ app.get("/api/health", (_req, res) => res.json({ ok: true }));
 app.use("/api", sameOrigin, loadUser);
 app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/practice", practiceRouter);
 app.use("/api", (_req, res) => res.status(404).json({ error: "Not found" }));
 
 // Static client (production build)

@@ -5,6 +5,7 @@ import Calculator from "./components/Calculator";
 import Admin from "./components/Admin";
 import InstallHint from "./components/InstallHint";
 import ProductShowcase from "./components/ProductShowcase";
+import Practice from "./components/Practice";
 
 export default function App() {
   const [me, setMe] = useState<Me | null | undefined>(undefined);
@@ -35,7 +36,31 @@ export default function App() {
     );
   }
   if (path.startsWith("/admin") && me.isAdmin) return <Admin me={me} onUnlocked={() => setMe({ ...me, adminUnlocked: true })} onBack={() => go("/")} />;
+
+  const tab = path.startsWith("/practice") ? "practice" : "odds";
+  const tabs = (
+    <nav className="tabs" aria-label="Sections">
+      <button className={tab === "odds" ? "on" : ""} aria-current={tab === "odds" ? "page" : undefined} onClick={() => go("/")}>Odds</button>
+      <button className={tab === "practice" ? "on" : ""} aria-current={tab === "practice" ? "page" : undefined} onClick={() => go("/practice")}>Practice</button>
+    </nav>
+  );
+  if (tab === "practice") {
+    return (
+      <Practice header={
+        <>
+          <header className="calc-top">
+            <div className="wordmark">POKER AT THIV'S</div>
+            <div className="top-actions">
+              {me.isAdmin && <button className="chip" onClick={() => go("/admin")}>Admin</button>}
+              <button className="chip" onClick={logout} title={me.user.email}>Sign out</button>
+            </div>
+          </header>
+          {tabs}
+        </>
+      } />
+    );
+  }
   return (
-    <Calculator me={me} onAdmin={me.isAdmin ? () => go("/admin") : undefined} onLogout={logout} onComingSoon={() => { go("/coming-soon"); scrollTo(0, 0); }} banner={<InstallHint />} />
+    <Calculator me={me} tabs={tabs} onAdmin={me.isAdmin ? () => go("/admin") : undefined} onLogout={logout} onComingSoon={() => { go("/coming-soon"); scrollTo(0, 0); }} banner={<InstallHint />} />
   );
 }

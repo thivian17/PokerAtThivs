@@ -297,3 +297,73 @@ textarea.bulk:focus { border-color: var(--gold); }
 .v-good { background: rgba(46,204,113,.12); color: #a6e8bd; }
 .v-mid { background: var(--gold-soft); color: var(--gold); }
 .v-weak { background: rgba(192,57,43,.2); color: #f0a097; }
+
+/* nav tabs */
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: rgba(0,0,0,.25); border: 1px solid var(--line); border-radius: 12px; padding: 4px; margin: 4px 0 8px; }
+.tabs button { background: none; border: none; border-radius: 9px; padding: 9px 0; font-weight: 700; font-size: 15px; color: var(--muted); min-height: 40px; }
+.tabs button.on { background: var(--gold); color: var(--felt-dark); }
+
+/* practice */
+.practice { display: flex; flex-direction: column; gap: 10px; }
+.pr-progress { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
+.pr-progress b { color: var(--cream); }
+.pr-score { color: var(--gold); font-weight: 700; font-variant-numeric: tabular-nums; }
+.pr-streak { color: #7fb8f0; }
+.pr-bar { height: 6px; }
+.pr-bar .w { background: var(--gold); }
+.pr-table { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 14px 8px 6px; }
+.pr-street { font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+.pr-group { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.pr-cards { display: flex; gap: 6px; }
+.pc-card { width: 50px; aspect-ratio: .72; border-radius: 7px; background: #fbf8f0; border: 1.5px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.35); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
+.pc-card .r { font-size: 21px; font-weight: 800; }
+.pc-card .s { font-size: 20px; }
+.pc-card.big { width: 70px; border-radius: 9px; }
+.pc-card.big .r { font-size: 30px; } .pc-card.big .s { font-size: 28px; }
+.pr-guess { align-items: stretch; }
+.pr-guess .label { text-align: center; }
+.pr-guess-num { text-align: center; font-size: 56px; font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; letter-spacing: -1px; line-height: 1.05; }
+.pr-guess-num.untouched { color: var(--muted); opacity: .6; }
+.pr-guess input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; padding: 0; border: none; background: transparent; }
+.pr-guess input[type=range]::-webkit-slider-runnable-track { height: 10px; border-radius: 6px; background: linear-gradient(to right, var(--gold) var(--fill), rgba(0,0,0,.35) var(--fill)); }
+.pr-guess input[type=range]::-moz-range-track { height: 10px; border-radius: 6px; background: rgba(0,0,0,.35); }
+.pr-guess input[type=range]::-moz-range-progress { height: 10px; border-radius: 6px; background: var(--gold); }
+.pr-guess input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; margin-top: -10px; border-radius: 50%; background: #fbf8f0; border: 3px solid var(--gold); box-shadow: 0 2px 6px rgba(0,0,0,.4); }
+.pr-guess input[type=range]::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: #fbf8f0; border: 3px solid var(--gold); }
+.pr-scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: -6px; }
+.pr-nudge { display: flex; justify-content: center; gap: 10px; }
+.pr-nudge .chip { min-width: 64px; min-height: 40px; }
+.pr-reveal { gap: 12px; }
+.pr-grade { text-align: center; font-family: Georgia, serif; font-size: 30px; font-weight: 700; }
+.g-bullseye { color: #6fe39a; } .g-close { color: var(--gold); } .g-notbad { color: #f0c27a; } .g-wayoff { color: #f0a097; }
+.pr-compare { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; }
+.pr-compare div { display: flex; flex-direction: column; gap: 2px; }
+.pr-compare b { font-size: 26px; font-variant-numeric: tabular-nums; }
+.pr-compare b.gold { color: var(--gold); }
+.pr-line { position: relative; height: 10px; border-radius: 6px; background: rgba(0,0,0,.35); margin: 4px 8px 8px; }
+.pr-mark { position: absolute; top: 50%; width: 18px; height: 18px; border-radius: 50%; transform: translate(-50%, -50%); border: 3px solid var(--felt-dark); }
+.pr-mark.you { background: var(--cream); }
+.pr-mark.real { background: var(--gold); }
+.pr-lesson { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.45; }
+.summary { align-items: center; text-align: center; }
+.summary .btn { width: 100%; }
+.sum-score { font-size: 64px; font-weight: 800; color: var(--gold); line-height: 1; font-variant-numeric: tabular-nums; }
+.sum-score span { font-size: 20px; color: var(--muted); font-weight: 600; margin-left: 6px; }
+.v-tag.pb { margin-top: -2px; }
+.sum-stats { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; gap: 6px; }
+.sum-stats div { display: flex; flex-direction: column; background: rgba(0,0,0,.2); border-radius: 10px; padding: 8px 4px; }
+.sum-stats b { font-size: 22px; }
+.sum-stats span { font-size: 11px; color: var(--muted); }
+.lb { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.lb li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; background: rgba(0,0,0,.18); font-variant-numeric: tabular-nums; }
+.lb li.me { background: var(--gold-soft); border: 1px solid var(--gold); }
+.lb-rank { width: 22px; color: var(--gold); font-weight: 800; }
+.lb-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hand-log { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.hand-log li { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: "cards meta pts" "cards nums pts"; column-gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.hl-cards { grid-area: cards; display: flex; gap: 3px; }
+.hl-cards .pc-card { width: 30px; border-radius: 5px; }
+.hl-cards .pc-card .r { font-size: 13px; } .hl-cards .pc-card .s { font-size: 12px; }
+.hand-log .small { grid-area: meta; }
+.hl-nums { grid-area: nums; font-size: 13px; font-variant-numeric: tabular-nums; }
+.hl-pts { grid-area: pts; color: var(--gold); }

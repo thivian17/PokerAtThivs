@@ -62,7 +62,7 @@ function heatColor(delta: number, exact: boolean) {
   return `rgb(${mix.join(",")})`;
 }
 
-export default function Calculator({ me, onAdmin, onLogout, onComingSoon, banner }: { me: Me; onAdmin?: () => void; onLogout: () => void; onComingSoon: () => void; banner?: React.ReactNode }) {
+export default function Calculator({ me, tabs, onAdmin, onLogout, onComingSoon, banner }: { me: Me; tabs?: React.ReactNode; onAdmin?: () => void; onLogout: () => void; onComingSoon: () => void; banner?: React.ReactNode }) {
   const [slots, setSlots] = useState<(number | null)[]>(Array(7).fill(null));
   const [active, setActive] = useState(0);
   const [opponents, setOpponents] = useState(() => {
@@ -132,6 +132,7 @@ export default function Calculator({ me, onAdmin, onLogout, onComingSoon, banner
           <button className="chip" onClick={onLogout} title={me.user.email}>Sign out</button>
         </div>
       </header>
+      {tabs}
       {banner}
 
       <div className="controls">
@@ -212,7 +213,7 @@ export default function Calculator({ me, onAdmin, onLogout, onComingSoon, banner
           Tap your two hole cards to start.
           <button className="coming-card" onClick={onComingSoon}>
             <span className="cs-suits"><span>♠</span><span className="h">♥</span><span className="d">♦</span></span>
-            <span><b>Coming soon:</b> Leaderboard, Coach &amp; Practice Table</span>
+            <span><b>Coming soon:</b> Live Leaderboard &amp; The Coach</span>
             <span className="cs-arrow">→</span>
           </button>
         </div>
@@ -304,7 +305,7 @@ export default function Calculator({ me, onAdmin, onLogout, onComingSoon, banner
           </p>
           <button className="coming-card" onClick={onComingSoon}>
             <span className="cs-suits"><span>♠</span><span className="h">♥</span><span className="d">♦</span></span>
-            <span><b>Coming soon:</b> Leaderboard, Coach &amp; Practice Table</span>
+            <span><b>Coming soon:</b> Live Leaderboard &amp; The Coach</span>
             <span className="cs-arrow">→</span>
           </button>
         </section>

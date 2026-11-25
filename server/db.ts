@@ -38,5 +38,15 @@ export async function migrate() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
     ALTER TABLE sessions ADD COLUMN IF NOT EXISTS admin_unlocked BOOLEAN NOT NULL DEFAULT false;
+    CREATE TABLE IF NOT EXISTS practice_scores (
+      id SERIAL PRIMARY KEY,
+      user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      score INT NOT NULL CHECK (score BETWEEN 0 AND 1000),
+      hands INT NOT NULL,
+      bullseyes INT NOT NULL DEFAULT 0,
+      avg_error REAL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+    CREATE INDEX IF NOT EXISTS practice_scores_user ON practice_scores (user_id);
   `);
 }

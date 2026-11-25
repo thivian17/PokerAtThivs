@@ -20,7 +20,7 @@ export default function SignIn({ onSignedIn }: { onSignedIn: (me: Me) => void })
     }
     if (data?.status === "not_registered") {
       setFormUrl(data.formUrl);
-      if (step === "not_registered") setMsg("Still not seeing you. Give it a minute after submitting, and double-check the email matches.");
+      if (step === "not_registered") setMsg("Still not seeing you. Thiv or Nas add RSVPs by hand, so it can take a few hours. Double-check the email matches the form.");
       setStep("not_registered");
     } else if (data?.status === "rate_limited") setMsg(`Too many tries. Wait ${data.retryAfterSeconds}s.`);
     else if (data?.status === "invalid_email" || status === 400) setMsg("That doesn't look like an email address.");

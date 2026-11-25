@@ -101,16 +101,16 @@ function CoachScreen() {
 function PracticeScreen() {
   return (
     <>
-      <div className="pp-top">PRACTICE <span className="pp-streak">♦ 6 streak</span></div>
-      <div className="pp-sub left">Hand 12 of 20 · Accuracy 83%</div>
-      <div className="pp-bar thin"><span style={{ width: "60%" }} /></div>
-      <div className="pp-q">You're on the button with</div>
-      <div className="pp-row-cards center"><Mini r="Q" s="♠" /><Mini r="J" s="♠" /></div>
-      <div className="pp-q">Two players limp in. Your move?</div>
+      <div className="pp-top">PRACTICE <span className="pp-streak">♦ 4 streak</span></div>
+      <div className="pp-sub left">Hand 6 of 10 · 512 pts</div>
+      <div className="pp-bar thin"><span style={{ width: "50%" }} /></div>
+      <div className="pp-q">Flop · vs 3 opponents</div>
+      <div className="pp-row-cards center"><Mini r="9" s="♥" /><Mini r="8" s="♥" /></div>
+      <div className="pp-row-cards center"><Mini r="K" s="♥" /><Mini r="7" s="♣" /><Mini r="2" s="♥" /></div>
       <div className="pp-choices">
-        <span>Fold</span><span>Call</span><span className="right">Raise ✓</span>
+        <span>You said 35%</span><span className="right">Real 38% ✓</span>
       </div>
-      <div className="pp-feedback">Nice. Suited broadway plays great in position, so raise to take the lead.</div>
+      <div className="pp-feedback">Bullseye! 9 outs × 4 ≈ 36% to hit your flush by the river.</div>
       <div className="pp-next">Next hand →</div>
     </>
   );
@@ -124,6 +124,12 @@ const FEATURES = [
     screen: <OddsScreen />, tilt: -3,
   },
   {
+    key: "practice", suit: "♦", suitClass: "d", status: "LIVE NOW", title: "Practice: Guess the Odds",
+    pitch: "Warm up before you sit down.",
+    bullets: ["Random real spots: guess your win %, then see the truth", "The shortcuts pros use, explained hand by hand", "A practice leaderboard to climb before Friday"],
+    screen: <PracticeScreen />, tilt: 3,
+  },
+  {
     key: "lb", suit: "♠", suitClass: "", status: "COMING SOON", title: "Live Leaderboard",
     pitch: "Who's up, who's down, all night long.",
     bullets: ["Live chip counts after every buy-in and cash-out", "Your night charted hand by hand", "Bragging rights: biggest pot, best comeback"],
@@ -134,13 +140,7 @@ const FEATURES = [
     pitch: "Fold, call or raise, with the math to back it up.",
     bullets: ["Pot odds vs your equity, done for you", "Plain-English reasons, not just a verdict", "Preflop guidance by seat and hand"],
     screen: <CoachScreen />, tilt: -3,
-  },
-  {
-    key: "practice", suit: "♦", suitClass: "d", status: "COMING SOON", title: "Practice Table",
-    pitch: "Warm up before you sit down.",
-    bullets: ["Real spots, instant feedback", "Streaks and accuracy to beat", "Quick-fire equity guessing drills"],
-    screen: <PracticeScreen />, tilt: 3,
-  },
+  }
 ];
 
 export default function ProductShowcase({ cta }: { cta?: React.ReactNode }) {
@@ -149,7 +149,7 @@ export default function ProductShowcase({ cta }: { cta?: React.ReactNode }) {
       <div className="pp-hero">
         <div className="eyebrow">THE APP</div>
         <h2>Play sharper.<br />Brag louder.</h2>
-        <p className="muted">One app for the whole night: the odds now, with more on the way.</p>
+        <p className="muted">One app for the whole night: odds and practice now, with more on the way.</p>
       </div>
       {FEATURES.map((f) => (
         <article key={f.key} className={`pp-feature ${f.status === "LIVE NOW" ? "live" : ""}`}>
